@@ -4,9 +4,12 @@
 
 ## Технологии
 
-[![Python][Python-badge]][Python-url]
-[![FastAPI][FastAPI-badge]][FastAPI-url]
-[![SQLAlchemy][SQLAlchemy-badge]][SQLAlchemy-url]
+ - Python 3.7
+ - FastAPI
+ - SQLAlchemy
+ - Pydantic
+ - Alembic
+ - Uvicorn
 
 ## Установка
 
