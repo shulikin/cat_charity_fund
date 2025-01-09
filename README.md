@@ -27,7 +27,7 @@ pip install -r requirements.txt
 В корне проекта создайте файл переменных окружения `.env` со следующими переменными:
 ```
 APP_TITLE=< Название приложения >
-DATABASE_URL=< БД (по умолчанию sqlite) >
+DATABASE_URL=< БД (по умолчанию sqlite+aiosqlite) >
 APP_DESCRIPTION=< Описание приложения >
 SECRET=< Cекретный ключ >
 ```
