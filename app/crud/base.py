@@ -1,4 +1,4 @@
-from typing import Optional
+from typing import Optional, List
 
 from fastapi.encoders import jsonable_encoder
 from sqlalchemy import select
@@ -15,7 +15,7 @@ class CRUDBase:
     async def get_multi(
             self,
             session: AsyncSession
-    ):
+    ) -> List:
         db_objs = await session.execute(select(self.model))
         return db_objs.scalars().all()
 
@@ -33,6 +33,15 @@ class CRUDBase:
         await session.commit()
         await session.refresh(db_obj)
         return db_obj
+
+    async def get_by_kwargs(
+            self,
+            session: AsyncSession,
+            **kwargs,
+    ):
+        query = select(self.model).filter_by(**kwargs)
+        db_objs = await session.execute(query)
+        return db_objs.scalars().all()
 
 
 class CRUDBaseAdvanced(CRUDBase):

@@ -28,7 +28,7 @@ from app.schemas.donation import (
 )
 
 from app.services.utils import (
-    funds_distribution,
+    patch_distribute_funds,
     get_uninvested_objects
 )
 
@@ -45,7 +45,7 @@ async def create_new_donation(
     new_donation = await donation_crud.create(donation, session, user)
     open_projects = await get_uninvested_objects(CharityProject, session)
     try:
-        funds_distribution(
+        patch_distribute_funds(
             opened_items=open_projects,
             funds=new_donation
         )

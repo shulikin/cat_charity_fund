@@ -11,7 +11,8 @@ async def check_name_duplicate(
         project_name: str,
         session: AsyncSession,
 ) -> None:
-    """Проверка названия проекта."""
+    """Уникальность названия проекта."""
+
     project_id = await charity_project_crud.get_project_id_by_name(
         project_name, session
     )
@@ -26,7 +27,8 @@ async def check_project_exists(
         project_id: int,
         session: AsyncSession
 ) -> CharityProject:
-    """Проверка существования проекта."""
+    """Наличие проекта."""
+
     charity_project = await charity_project_crud.get(project_id, session)
     if not charity_project:
         raise HTTPException(
@@ -40,7 +42,8 @@ async def check_project_open(
         project_id: int,
         session: AsyncSession,
 ) -> CharityProject:
-    """Проверка - проект открыт."""
+    """Состояние проекта(открыт\закрыт)."""
+
     charity_project = await charity_project_crud.get(project_id, session)
     if charity_project.close_date:
         raise HTTPException(
@@ -55,7 +58,8 @@ async def check_investing_funds(
         obj_in_full_amount,
         session: AsyncSession,
 ) -> CharityProject:
-    """Проверка суммы."""
+    """Новая сумма."""
+
     charity_project = await charity_project_crud.get(project_id, session)
     if obj_in_full_amount < charity_project.invested_amount:
         raise HTTPException(
@@ -69,7 +73,8 @@ async def check_invested_amount(
         project_id: int,
         session: AsyncSession,
 ) -> CharityProject:
-    """Средства поступили."""
+    """Поступления средств."""
+
     charity_project = await charity_project_crud.get(project_id, session)
     if charity_project.invested_amount > 0:
         raise HTTPException(

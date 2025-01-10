@@ -1,22 +1,23 @@
 from datetime import datetime
 
-from sqlalchemy import Boolean, Column, DateTime, Integer
+from sqlalchemy import Boolean, CheckConstraint, Column, DateTime, Integer
 
-from app.core.config import Constant
 from app.core.db import Base
 
 
 class ProjectDonationBase(Base):
-    """Базовая абстрактная модель родителя
-    для моделей проекта и пожертвования."""
+    """Базовая модель.
+    Абстрактная модель для наследования общего функционала в моделях
+     CharityProject и Donation.
+    """
     __abstract__ = True
-
-    full_amount = Column(Integer, nullable=False)
-    invested_amount = Column(
-        Integer,
-        nullable=False,
-        default=Constant.DEFAULT_INVESTED,
+    __table_args__ = (
+        CheckConstraint('full_amount >= invested_amount'),
     )
-    fully_invested = Column(Boolean, nullable=False, default=False)
-    create_date = Column(DateTime, nullable=False, default=datetime.now)
+    full_amount = Column(Integer, CheckConstraint('full_amount > 0'),
+                         nullable=False)
+    invested_amount = Column(Integer, CheckConstraint('invested_amount >= 0'),
+                             default=0, nullable=False)
+    fully_invested = Column(Boolean, default=False, nullable=False)
+    create_date = Column(DateTime, default=datetime.now, index=True)
     close_date = Column(DateTime)

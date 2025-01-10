@@ -1,14 +1,23 @@
-# app/schemas/user.py
 from fastapi_users import schemas
 
 
 class UserRead(schemas.BaseUser[int]):
-    pass
+    """
+    Схема для чтения данных пользователя.
+    Расширяет базовую схему пользователя
+    с использованием целочисленного идентификатора.
+    """
 
 
 class UserCreate(schemas.BaseUserCreate):
-    pass
+    """
+    Схема для создания нового пользователя.
+    Включает обязательные поля, такие как email и пароль.
+    """
 
 
 class UserUpdate(schemas.BaseUserUpdate):
-    pass
+    """
+    Схема для обновления информации о пользователе.
+    Поддерживает частичное обновление данных.
+    """

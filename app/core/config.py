@@ -16,7 +16,7 @@ class Constant:
     NAME_MIN_LEN = 1
     BASE_DIR = Path(__file__).parent
     LOG_FORMAT = '"%(asctime)s - [%(levelname)s] - %(message)s"'
-    DT_FORMAT = '%d.%m.%Y %H:%M:%S'
+    DATETIME_FORMAT = '%d.%m.%Y %H:%M:%S'
 
 
 class Settings(BaseSettings):
@@ -44,7 +44,7 @@ def configure_logging():
         backupCount=5
     )
     logging.basicConfig(
-        datefmt=Constant.DT_FORMAT,
+        datefmt=Constant.DATETIME_FORMAT,
         format=Constant.LOG_FORMAT,
         level=logging.INFO,
         handlers=(

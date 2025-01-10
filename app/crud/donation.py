@@ -1,6 +1,5 @@
 from typing import List, Optional
 
-from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.crud.base import CRUDBase
@@ -14,11 +13,8 @@ class CRUDDonation(CRUDBase):
             user: User,
             session: AsyncSession,
     ) -> Optional[List[Donation]]:
-        """Поиск по ID."""
-        user_donations = await session.execute(
-            select(Donation).where(Donation.user_id == user.id)
-        )
-        return user_donations.scalars().all()
+        """Поиск по ID пользователя с использованием общего метода."""
+        return await self.get_by_kwargs(session, user_id=user.id)
 
 
 donation_crud = CRUDDonation(Donation)
