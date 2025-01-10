@@ -42,7 +42,7 @@ async def check_project_open(
         project_id: int,
         session: AsyncSession,
 ) -> CharityProject:
-    """Состояние проекта(открыт\закрыт)."""
+    """Состояние проекта(открыт|закрыт)."""
 
     charity_project = await charity_project_crud.get(project_id, session)
     if charity_project.close_date:
