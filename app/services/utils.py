@@ -2,11 +2,15 @@ from datetime import datetime
 from typing import List, Optional, Type, Union
 
 from sqlalchemy import select
+from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from app.api.exceptions import DuplicateException
 from app.crud.charity_project import charity_project_crud
+from app.crud.donation import donation_crud
 from app.models import CharityProject, Donation
 from app.api.validators import check_name_duplicate, check_investing_funds
+from app.schemas.donation import DonationCreate
 
 AllocatableResource = Union[Donation, CharityProject]
 
@@ -15,6 +19,12 @@ def patch_distribute_funds(
         opened_items: Optional[List[AllocatableResource]],
         funds: AllocatableResource,
 ) -> AllocatableResource:
+    """Распределяет средства на список открытых элементов `opened_items`.
+
+    Эта функция проверяет, сколько средств осталось у объекта `funds`,
+    и распределяет их между открытыми элементами в `opened_items`.
+    Если средств достаточно, элементы закрываются.
+    """
     if opened_items:
         for item in opened_items:
             funds_diff = funds.full_amount - funds.invested_amount
@@ -34,6 +44,11 @@ def patch_distribute_funds(
 
 
 def close_item(item: AllocatableResource) -> AllocatableResource:
+    """Закрывает элемент, устанавливая флаги `fully_invested` и `close_date`.
+
+    Эта функция обновляет флаг `fully_invested`
+    и устанавливает дату закрытия для элемента.
+    """
     item.fully_invested = True
     item.close_date = datetime.now()
     return item
@@ -43,6 +58,11 @@ async def get_uninvested_objects(
         obj_model: Type[AllocatableResource],
         session: AsyncSession,
 ) -> Optional[List[AllocatableResource]]:
+    """Получает список объектов, которые ещё не инвестированы.
+
+    Эта функция выполняет запрос в базу данных для получения всех объектов,
+    которые не были полностью инвестированы.
+    """
     uninvested_objects = await session.execute(
         select(obj_model).where(
             obj_model.fully_invested == 0
@@ -54,6 +74,11 @@ async def get_uninvested_objects(
 async def update_charity_project_logic(
     charity_project, obj_in, project_id: int, session: AsyncSession
 ):
+    """Логика обновления благотворительного проекта.
+
+    Эта функция обновляет данные проекта в базе и проверяет,
+    нужно ли его закрыть после обновления.
+    """
     if obj_in.name:
         await check_name_duplicate(obj_in.name, session)
     if obj_in.full_amount:
@@ -67,3 +92,55 @@ async def update_charity_project_logic(
         close_item(charity_project)
 
     return charity_project
+
+
+async def process_new_charity_project(charity_project, session: AsyncSession):
+    """Обрабатывает создание нового проекта.
+
+    Проверяет уникальность имени проекта.
+    Создает проект в базе данных.
+    Распределяет нераспределенные пожертвования на новый проект.
+    """
+    await check_name_duplicate(charity_project.name, session)
+    new_project = await charity_project_crud.create(charity_project, session)
+    unallocated_donations = await get_uninvested_objects(Donation, session)
+
+    try:
+        patch_distribute_funds(
+            opened_items=unallocated_donations,
+            funds=new_project
+        )
+        await session.commit()
+        await session.refresh(new_project)
+    except IntegrityError:
+        await session.rollback()
+        raise DuplicateException('Средства распределены')
+
+    return new_project
+
+
+async def process_new_donation(
+        donation: DonationCreate,
+        session: AsyncSession,
+        user
+):
+    """Обрабатывает создание нового пожертвования.
+
+    Создает пожертвование в базе данных.
+    Распределяет средства пожертвования на открытые проекты.
+    """
+    new_donation = await donation_crud.create(donation, session, user)
+    open_projects = await get_uninvested_objects(CharityProject, session)
+
+    try:
+        patch_distribute_funds(
+            opened_items=open_projects,
+            funds=new_donation
+        )
+        await session.commit()
+        await session.refresh(new_donation)
+    except IntegrityError:
+        await session.rollback()
+        raise DuplicateException('Средства распределены')
+
+    return new_donation

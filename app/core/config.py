@@ -10,6 +10,7 @@ from pydantic import (
 
 
 class Constant:
+    """Класс для хранения различных констант."""
 
     DEFAULT_INVESTED = 0
     NAME_MAX_LEN = 100
@@ -20,6 +21,8 @@ class Constant:
 
 
 class Settings(BaseSettings):
+    """Класс конфигурации."""
+
     app_title: str = 'Благотворительный фонд QRKot'
     app_description: str = 'Фонд собирает пожертвования на целевые проекты'
     database_url: str = 'sqlite+aiosqlite:///./qrkot.db'
@@ -28,6 +31,8 @@ class Settings(BaseSettings):
     first_superuser_password: Optional[str] = None
 
     class Config:
+        """Класс конфигурации '.env'."""
+
         env_file = '.env'
 
 
@@ -35,6 +40,7 @@ settings = Settings()
 
 
 def configure_logging():
+    """Функция настройки логирования."""
     log_dir = Constant.BASE_DIR / 'logs'
     log_dir.mkdir(exist_ok=True)
     log_file = log_dir / 'qrkot.log'

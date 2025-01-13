@@ -9,6 +9,11 @@ from app.models.base import ProjectDonationBase
 
 
 class CharityProject(ProjectDonationBase):
+    """Модель благотворительного проекта.
+
+    Наследуется от ProjectDonationBase и добавляет специфические поля
+    для описания благотворительных проектов.
+    """
 
     name = Column(
         String(Constant.NAME_MAX_LEN),

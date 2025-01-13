@@ -1,5 +1,3 @@
-from typing import AsyncGenerator
-
 from sqlalchemy import (
     Column,
     Integer
@@ -18,6 +16,12 @@ from app.core.config import settings
 
 
 class PreBase:
+    """Базовый класс для всех моделей.
+
+    Этот класс используется для автоматической генерации имени таблицы
+    (по имени модели в нижнем регистре)
+    и добавления общего поля `id` в каждую модель.
+    """
 
     @declared_attr
     def __tablename__(cls):
@@ -34,6 +38,12 @@ engine = create_async_engine(settings.database_url)
 AsyncSessionLocal = sessionmaker(engine, class_=AsyncSession)
 
 
-async def get_async_session() -> AsyncGenerator[AsyncSession, None]:
+async def get_async_session():
+    """Получение асинхронной сессии для работы с базой данных.
+
+    Этот генератор создает сессию, используя
+    `AsyncSessionLocal`, и автоматически
+    управляет её жизненным циклом (открытие и закрытие).
+    """
     async with AsyncSessionLocal() as async_session:
         yield async_session

@@ -11,8 +11,11 @@ async def check_name_duplicate(
         project_name: str,
         session: AsyncSession,
 ) -> None:
-    """Уникальность названия проекта."""
+    """Проверка на дублирование имени проекта.
 
+    Проверяет, существует ли проект с таким именем в базе данных.
+    Если проект найден, генерируется исключение с кодом ошибки 400.
+    """
     project_id = await charity_project_crud.get_project_id_by_name(
         project_name, session
     )
@@ -27,8 +30,11 @@ async def check_project_exists(
         project_id: int,
         session: AsyncSession
 ) -> CharityProject:
-    """Наличие проекта."""
+    """Получение благотворительного проекта по ID.
 
+    Получения проекта с указанным ID. Если проект не найден,
+    генерируется исключение с кодом ошибки 404.
+    """
     charity_project = await charity_project_crud.get(project_id, session)
     if not charity_project:
         raise HTTPException(
@@ -42,8 +48,11 @@ async def check_project_open(
         project_id: int,
         session: AsyncSession,
 ) -> CharityProject:
-    """Состояние проекта(открыт|закрыт)."""
+    """Проверка, открыт ли проект.
 
+    Если проект закрыт (дата закрытия указана),
+    генерируется исключение с кодом ошибки 400.
+    """
     charity_project = await charity_project_crud.get(project_id, session)
     if charity_project.close_date:
         raise HTTPException(
@@ -58,8 +67,12 @@ async def check_investing_funds(
         obj_in_full_amount,
         session: AsyncSession,
 ) -> CharityProject:
-    """Новая сумма."""
+    """Проверка, вложена ли сумма в проект.
 
+    Проверяет, не меньше ли сумма вложенных средств, чем текущая сумма проекта.
+    Если текущая сумма меньше вложенной,
+    генерируется исключение с кодом ошибки 400.
+    """
     charity_project = await charity_project_crud.get(project_id, session)
     if obj_in_full_amount < charity_project.invested_amount:
         raise HTTPException(
@@ -73,8 +86,11 @@ async def check_invested_amount(
         project_id: int,
         session: AsyncSession,
 ) -> CharityProject:
-    """Поступления средств."""
+    """Проверка наличия вложенных средств в проекте.
 
+    Проверяет, разрешение на удаление. Если средства уже вложены,
+    генерируется исключение с кодом ошибки 400.
+    """
     charity_project = await charity_project_crud.get(project_id, session)
     if charity_project.invested_amount > 0:
         raise HTTPException(

@@ -7,30 +7,22 @@ from fastapi import (
     APIRouter,
     Depends
 )
-from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.api.exceptions import DuplicateException
 from app.core.db import get_async_session
 from app.core.user import (
     current_superuser,
     current_user
 )
 from app.crud.donation import donation_crud
-from app.models import (
-    CharityProject,
-    User
-)
+from app.models import User
 from app.schemas.donation import (
     DonationCreate,
     DonationDB,
     DonationDBSuper
 )
 
-from app.services.utils import (
-    patch_distribute_funds,
-    get_uninvested_objects
-)
+from app.services.utils import process_new_donation
 
 router = APIRouter()
 
@@ -41,20 +33,13 @@ async def create_new_donation(
         session: AsyncSession = Depends(get_async_session),
         user: User = Depends(current_user),
 ):
-    """Создание пожертвования."""
-    new_donation = await donation_crud.create(donation, session, user)
-    open_projects = await get_uninvested_objects(CharityProject, session)
-    try:
-        patch_distribute_funds(
-            opened_items=open_projects,
-            funds=new_donation
-        )
-        await session.commit()
-        await session.refresh(new_donation)
-    except IntegrityError:
-        await session.rollback()
-        raise DuplicateException('Средства распределены')
-    return new_donation
+    """Создание новой пожертвования.
+
+    Позволяет пользователям создавать пожертвования
+    для благотворительных проектов.
+    Пожертвование привязывается к текущему пользователю.
+    """
+    return await process_new_donation(donation, session, user)
 
 
 @router.get(
@@ -66,7 +51,12 @@ async def create_new_donation(
 async def get_all_donations(
         session: AsyncSession = Depends(get_async_session)
 ):
-    """Список пожертвований - суперюзер."""
+    """Получение всех пожертвований.
+
+    Позволяет суперпользователям просматривать все пожертвования,
+    сделанные пользователями.
+    Если пожертвования отсутствуют, возвращается пустой список.
+    """
     donations = await donation_crud.get_multi(session)
     return donations
 
@@ -81,6 +71,10 @@ async def get_my_donations(
         user: User = Depends(current_user),
         session: AsyncSession = Depends(get_async_session),
 ):
-    """Свой список."""
+    """Получение пожертвований текущего пользователя.
+
+    Позволяет пользователю просматривать свои собственные пожертвования.
+    Если пожертвования отсутствуют, возвращается пустой список.
+    """
     my_donations = await donation_crud.get_by_user(user=user, session=session)
     return my_donations

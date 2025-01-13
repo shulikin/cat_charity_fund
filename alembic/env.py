@@ -23,7 +23,8 @@ target_metadata = Base.metadata
 
 
 def run_migrations_offline():
-    """Run migrations in 'offline' mode.
+    """
+    Run migrations in 'offline' mode.
 
     This configures the context with just a URL
     and not an Engine, though an Engine is acceptable
@@ -47,6 +48,12 @@ def run_migrations_offline():
 
 
 def do_run_migrations(connection):
+    """
+    Run database migrations using the provided connection.
+
+    This function configures the Alembic context with the given connection
+    and runs migrations within a transactional scope.
+    """
     context.configure(connection=connection, target_metadata=target_metadata)
 
     with context.begin_transaction():
@@ -54,7 +61,8 @@ def do_run_migrations(connection):
 
 
 async def run_migrations_online():
-    """Run migrations in 'online' mode.
+    """
+    Run migrations in 'online' mode.
 
     In this scenario we need to create an Engine
     and associate a connection with the context.

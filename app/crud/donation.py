@@ -7,13 +7,22 @@ from app.models import Donation, User
 
 
 class CRUDDonation(CRUDBase):
+    """Класс для работы с операциями CRUD для пожертвований.
+
+    Наследуется от CRUDBase и предоставляет дополнительные методы
+    для работы с пожертвованиями.
+    """
 
     async def get_by_user(
             self,
             user: User,
             session: AsyncSession,
     ) -> Optional[List[Donation]]:
-        """Поиск по ID пользователя с использованием общего метода."""
+        """Получить все пожертвования пользователя по его ID.
+
+        Этот метод использует общий метод `get_by_kwargs`, чтобы найти все
+        пожертвования, связанные с указанным пользователем.
+        """
         return await self.get_by_kwargs(session, user_id=user.id)
 
 

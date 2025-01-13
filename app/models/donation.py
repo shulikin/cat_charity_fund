@@ -9,6 +9,11 @@ from app.models.base import ProjectDonationBase
 
 
 class Donation(ProjectDonationBase):
+    """Модель пожертвования.
+
+    Наследуется от ProjectDonationBase и добавляет специфические поля
+    для хранения информации о пожертвованиях.
+    """
 
     user_id = Column(
         Integer,

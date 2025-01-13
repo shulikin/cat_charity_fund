@@ -10,7 +10,12 @@ except (ImportError, NameError):
 
 
 class UserCreationError(Exception):
-    pass
+    """
+    Exception raised for errors that occur during user creation.
+
+    This can be used to signal specific issues in the user creation process,
+    such as invalid data or database constraints violations.
+    """
 
 
 if __name__ == '__main__':

@@ -7,9 +7,11 @@ from app.core.db import Base
 
 class ProjectDonationBase(Base):
     """Базовая модель.
+
     Абстрактная модель для наследования общего функционала в моделях
      CharityProject и Donation.
     """
+
     __abstract__ = True
     __table_args__ = (
         CheckConstraint('full_amount >= invested_amount'),
