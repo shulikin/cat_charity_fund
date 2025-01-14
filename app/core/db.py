@@ -1,3 +1,4 @@
+from typing import AsyncGenerator
 from sqlalchemy import (
     Column,
     Integer
@@ -38,7 +39,7 @@ engine = create_async_engine(settings.database_url)
 AsyncSessionLocal = sessionmaker(engine, class_=AsyncSession)
 
 
-async def get_async_session():
+async def get_async_session() -> AsyncGenerator[AsyncSession, None]:
     """Получение асинхронной сессии для работы с базой данных.
 
     Этот генератор создает сессию, используя

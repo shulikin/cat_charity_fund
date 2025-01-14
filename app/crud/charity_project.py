@@ -17,12 +17,12 @@ class CRUDCharityProject(CRUDBaseAdvanced):
             self,
             project_name: str,
             session: AsyncSession,
-    ) -> Optional[int]:
+    ) -> Optional[CharityProject]:
         """Поиск по имени с использованием общего метода."""
-        query = (select(CharityProject)
-                 .where(CharityProject.name == project_name))
-        result = await session.execute(query)
-        return result.scalars().first()
+        return (
+            await session.execute(select(CharityProject)
+                                  .where(CharityProject.name == project_name))
+        ).scalars().first()
 
 
 charity_project_crud = CRUDCharityProject(CharityProject)

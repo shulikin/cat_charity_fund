@@ -57,8 +57,7 @@ async def get_all_donations(
     сделанные пользователями.
     Если пожертвования отсутствуют, возвращается пустой список.
     """
-    donations = await donation_crud.get_multi(session)
-    return donations
+    return await donation_crud.get_multi(session)
 
 
 @router.get(
