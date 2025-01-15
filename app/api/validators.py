@@ -62,6 +62,27 @@ async def check_project_open(
     return charity_project
 
 
+async def validate_update_project(
+    obj_in,
+    project_id: int,
+    session: AsyncSession
+) -> None:
+    """Валидация данных для обновления благотворительного проекта.
+
+    Args:
+        obj_in (UpdateProjectSchema): Данные для обновления проекта.
+        project_id (int): ID проекта для проверки.
+        session (AsyncSession): Асинхронная сессия SQLAlchemy.
+
+    Raises:
+        ValueError: Если данные не прошли валидацию.
+    """
+    if obj_in.name:
+        await check_name_duplicate(obj_in.name, session)
+    if obj_in.full_amount:
+        await check_investing_funds(project_id, obj_in.full_amount, session)
+
+
 async def check_investing_funds(
         project_id: int,
         obj_in_full_amount,
