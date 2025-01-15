@@ -75,5 +75,4 @@ async def get_my_donations(
     Позволяет пользователю просматривать свои собственные пожертвования.
     Если пожертвования отсутствуют, возвращается пустой список.
     """
-    my_donations = await donation_crud.get_by_user(user=user, session=session)
-    return my_donations
+    return await donation_crud.get_by_user(user=user, session=session)
