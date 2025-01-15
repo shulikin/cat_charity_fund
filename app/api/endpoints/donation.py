@@ -33,8 +33,7 @@ async def create_new_donation(
         session: AsyncSession = Depends(get_async_session),
         user: User = Depends(current_user),
 ):
-    """
-    Создание новой пожертвования.
+    """Создание новой пожертвования.
 
     Позволяет пользователям создавать пожертвования
     для благотворительных проектов.
@@ -52,15 +51,13 @@ async def create_new_donation(
 async def get_all_donations(
         session: AsyncSession = Depends(get_async_session)
 ):
-    """
-    Получение всех пожертвований.
+    """Получение всех пожертвований.
 
     Позволяет суперпользователям просматривать все пожертвования,
     сделанные пользователями.
     Если пожертвования отсутствуют, возвращается пустой список.
     """
-    donations = await donation_crud.get_multi(session)
-    return donations
+    return await donation_crud.get_multi(session)
 
 
 @router.get(
@@ -73,8 +70,7 @@ async def get_my_donations(
         user: User = Depends(current_user),
         session: AsyncSession = Depends(get_async_session),
 ):
-    """
-    Получение пожертвований текущего пользователя.
+    """Получение пожертвований текущего пользователя.
 
     Позволяет пользователю просматривать свои собственные пожертвования.
     Если пожертвования отсутствуют, возвращается пустой список.

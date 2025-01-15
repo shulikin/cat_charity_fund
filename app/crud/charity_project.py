@@ -1,6 +1,5 @@
 from typing import Optional
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy.future import select
 
 from app.crud.base import CRUDBaseAdvanced
 from app.models.charity_project import CharityProject
@@ -19,10 +18,7 @@ class CRUDCharityProject(CRUDBaseAdvanced):
             session: AsyncSession,
     ) -> Optional[CharityProject]:
         """Поиск по имени с использованием общего метода."""
-        return (
-            await session.execute(select(CharityProject)
-                                  .where(CharityProject.name == project_name))
-        ).scalars().first()
+        return await self.get_by_kwargs(session, name=project_name)
 
 
 charity_project_crud = CRUDCharityProject(CharityProject)

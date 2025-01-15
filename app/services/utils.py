@@ -19,34 +19,31 @@ def patch_distribute_funds(
         opened_items: Optional[List[AllocatableResource]],
         funds: AllocatableResource,
 ) -> AllocatableResource:
-    """
-    Распределяет средства на список открытых элементов `opened_items`.
+    """Распределяет средства на список открытых элементов `opened_items`.
 
     Эта функция проверяет, сколько средств осталось у объекта `funds`,
     и распределяет их между открытыми элементами в `opened_items`.
     Если средств достаточно, элементы закрываются.
     """
-    if opened_items:
-        for item in opened_items:
-            funds_diff = funds.full_amount - funds.invested_amount
-            item_diff = item.full_amount - item.invested_amount
-            if funds_diff >= item_diff:
-                funds.invested_amount += item_diff
-                item.invested_amount = item.full_amount
-                close_item(item)
-                if funds_diff == item_diff:
-                    close_item(funds)
-            else:
-                item.invested_amount += funds_diff
-                funds.invested_amount = funds.full_amount
+    for item in opened_items:
+        funds_diff = funds.full_amount - funds.invested_amount
+        item_diff = item.full_amount - item.invested_amount
+        if funds_diff >= item_diff:
+            funds.invested_amount += item_diff
+            item.invested_amount = item.full_amount
+            close_item(item)
+            if funds_diff == item_diff:
                 close_item(funds)
-                break
+        else:
+            item.invested_amount += funds_diff
+            funds.invested_amount = funds.full_amount
+            close_item(funds)
+            break
     return funds
 
 
 def close_item(item: AllocatableResource) -> AllocatableResource:
-    """
-    Закрывает элемент, устанавливая флаги `fully_invested` и `close_date`.
+    """Закрывает элемент, устанавливая флаги `fully_invested` и `close_date`.
 
     Эта функция обновляет флаг `fully_invested`
     и устанавливает дату закрытия для элемента.
@@ -60,8 +57,7 @@ async def get_uninvested_objects(
         obj_model: Type[AllocatableResource],
         session: AsyncSession,
 ) -> Optional[List[AllocatableResource]]:
-    """
-    Получает список объектов, которые ещё не инвестированы.
+    """Получает список объектов, которые ещё не инвестированы.
 
     Эта функция выполняет запрос в базу данных для получения всех объектов,
     которые не были полностью инвестированы.
@@ -77,8 +73,7 @@ async def get_uninvested_objects(
 async def update_charity_project_logic(
     charity_project, obj_in, project_id: int, session: AsyncSession
 ) -> CharityProject:
-    """
-    Логика обновления благотворительного проекта.
+    """Логика обновления благотворительного проекта.
 
     Эта функция обновляет данные проекта в базе и проверяет,
     нужно ли его закрыть после обновления.
@@ -93,7 +88,7 @@ async def update_charity_project_logic(
     return charity_project
 
 
-async def distribute_funds_and_commit(
+async def distribute_funds(
     opened_items,
     funds,
     session
@@ -115,8 +110,7 @@ async def process_new_charity_project(
     charity_project,
     session: AsyncSession
 ) -> CharityProject:
-    """
-    Обрабатывает создание нового проекта.
+    """Обрабатывает создание нового проекта.
 
     Проверяет уникальность имени проекта.
     Создает проект в базе данных.
@@ -134,7 +128,7 @@ async def process_new_charity_project(
         Donation,
         session
     )
-    await distribute_funds_and_commit(
+    await distribute_funds(
         unallocated_donations,
         new_project,
         session
@@ -162,7 +156,7 @@ async def process_new_donation(
         CharityProject,
         session
     )
-    await distribute_funds_and_commit(
+    await distribute_funds(
         open_projects,
         new_donation,
         session
